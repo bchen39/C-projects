@@ -31,11 +31,27 @@ In the Makefile, I make sure to install the libgcrypt library using the apt-get,
 Ensure that both enc and dec are in the same folder. 
 
 ```bash
-cp $(FILE_NAME) testfile
+cp dummy.txt testfile
 ./purenc testfile -l
 rm testfile
-./purdec testfile.pur -l
-diff $(FILE_NAME) testfile # check difference
+./purdec -l testfile.pur
+diff dummy.txt testfile # check difference
 ```
 
-You can replace `$(FILE_NAME)` and `testfile` with whichever name you prefer.
+## Remote
+
+Ensure that enc and dec are on different servers.
+
+```bash
+# On the decryption server
+./purdec $(PORT)
+
+# On the encryption server
+cp dummy.txt testfile
+./purenc testfile -d $(DECRYPTION_SERVER_IP):$(PORT)
+
+# On the decryption server
+diff dummy.txt testfile
+```
+
+You can replace `dummy.txt` and `testfile` with whichever name you prefer.
