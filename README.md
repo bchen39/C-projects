@@ -1,9 +1,6 @@
 # SCP Server
 
-Files:
-purenc.c
-purdec.c
-Makefile
+A simple SCP encryption and decryption server pair using AES256 CTR and HMAC_SHA256, ensuring secure file transmission and integrity verification, with features for both local and remote operations.
 
 # Summary
 
@@ -27,4 +24,16 @@ In the decryption server, if local, we read in the .pur file, reads the salt and
 
 In the Makefile, I make sure to install the libgcrypt library using the apt-get, then compile both c files.
 
+# Usage
 
+## Local
+
+Ensure that both enc and dec are in the same folder.
+
+```bash
+cp [Name of original file] [Name of test file]
+./purenc [Name of test file] -l
+rm [Name of test file]
+./purdec [Name of test file].pur -l
+diff [Name of original file] [Name of test file] # check difference
+```
