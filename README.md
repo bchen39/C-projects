@@ -26,6 +26,9 @@ In the Makefile, I make sure to install the libgcrypt library using the apt-get,
 
 # Usage
 
+Clone repo to server. Supports Linux Ubuntu 18.04 or later.
+`git clone https://github.com/bchen39/SCP-server`
+
 ## Local
 
 Ensure that both enc and dec are in the same folder. 
