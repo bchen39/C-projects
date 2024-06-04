@@ -31,9 +31,9 @@ In the Makefile, I make sure to install the libgcrypt library using the apt-get,
 Ensure that both enc and dec are in the same folder.
 
 ```bash
-cp [Name of original file] [Name of test file]
-./purenc [Name of test file] -l
-rm [Name of test file]
-./purdec [Name of test file].pur -l
-diff [Name of original file] [Name of test file] # check difference
+cp $(FILE_NAME) testfile
+./purenc testfile -l
+rm testfile
+./purdec testfile.pur -l
+diff $(FILE_NAME) testfile # check difference
 ```
