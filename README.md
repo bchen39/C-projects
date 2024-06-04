@@ -34,6 +34,7 @@ Clone repo to server. Supports Linux Ubuntu 18.04 or later.
 Ensure that both enc and dec are in the same folder. 
 
 ```bash
+make
 cp dummy.txt testfile
 ./purenc testfile -l
 rm testfile
@@ -47,9 +48,11 @@ Ensure that enc and dec are on different servers.
 
 ```bash
 # On the decryption server
+make
 ./purdec $(PORT)
 
 # On the encryption server
+make
 cp dummy.txt testfile
 ./purenc testfile -d $(DECRYPTION_SERVER_IP):$(PORT)
 
