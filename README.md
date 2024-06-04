@@ -1,10 +1,11 @@
-Yubang Chen
+##SCP Server
 
 Files:
 purenc.c
 purdec.c
 Makefile
 
+##Summary
 
 In this lab, we implemented an pair of SCP encryption and decryption server. The encryption server starts by generating a key using a set of password and randomly generated salt. It then take in a file, encrypts every 1024 bytes and HMACs the encrytion, either attach the result to a file or send to remote decryption server. The decryption starts by either opening the decryption file or receiving the salt and filename from remote. It then starts reading the encrypted file every 1024 bytes + 32 bytes of HMAC, compares the HMAC then decrypts the file and stores locally.
 
