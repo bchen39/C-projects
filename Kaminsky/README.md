@@ -39,8 +39,8 @@ sudo service bind9 restart # Start the DNS server
 
 On attacker VM, run the below commands:
 ```bash
-gcc -o udp -std=c99 udp.c
-sudo ./udp ($ATTACKER_IP) ($DNS_SERVER_IP)
+gcc -o kam -std=c99 kam.c
+sudo ./kam ($ATTACKER_IP) ($DNS_SERVER_IP)
 ```
 
 Verify attack by running the below in the DNS server:
