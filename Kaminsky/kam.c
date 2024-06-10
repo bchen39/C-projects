@@ -1,17 +1,8 @@
-// ----udp.c------
-// For use with the Remote DNS Cache Poisoning Attack Lab
+// Remote DNS Cache Poisoning Attack
 // Sample program used to spoof lots of different DNS queries to the victim.
 //
 // Wireshark can be used to study the packets, however, the DNS queries 
 // sent by this program are not enough for to complete the lab.
-//
-// The response packet needs to be completed.
-//
-// Compile command:
-// gcc udp.c -o udp
-//
-// The program must be run as root
-// sudo ./udp
 
 #include <unistd.h>
 #include <stdio.h>
