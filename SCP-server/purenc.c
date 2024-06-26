@@ -167,8 +167,18 @@ int main(int argc, char *argv[]) {
 	/* Derives key from password and salt. */
 	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 10, KEY_SZ, key); 
 	if (err) {
+		/* Delete password from memory. */
+		bzero(passwd, 100);
 		fprintf(stderr, "Error deriving key: %s\n", gcry_strerror(err));
 		goto err_sock;
+	}
+
+	/* Derives HMAC key from password and salt. */
+	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 20, HMAC_KEY_SZ, hmac_key); 
+	bzero(passwd, 100);
+	if (err) {
+		fprintf(stderr, "Error deriving hmac key: %s\n", gcry_strerror(err));
+		goto err_crypt;
 	}
 
 	/* Initiates cipher handle using AES256_CTR. */
@@ -189,13 +199,6 @@ int main(int argc, char *argv[]) {
 	err = gcry_cipher_setctr(cipher_hd, ctr, 16);
 	if (err) {
 		fprintf(stderr, "Error setting counter: %s\n", gcry_strerror(err));
-		goto err_crypt;
-	}
-
-	/* Derives HMAC key from password and salt. */
-	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 20, HMAC_KEY_SZ, hmac_key); 
-	if (err) {
-		fprintf(stderr, "Error deriving hmac key: %s\n", gcry_strerror(err));
 		goto err_crypt;
 	}
 
@@ -261,7 +264,9 @@ int main(int argc, char *argv[]) {
 		}
 		bzero((void *) buffer, BUFSIZE);
 	}
-	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed. */
+	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed and keys are wiped from memory. */
+	bzero(key, KEY_SZ);
+	bzero(hmac_key, HMAC_KEY_SZ);
 	if (local)
 		fclose(f_enc);
 	fclose(f_src);
@@ -274,6 +279,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed. */
 	err_file2:
+		bzero(key, KEY_SZ);
+		bzero(hmac_key, HMAC_KEY_SZ);
 		if (local)
 			fclose(f_enc);
 	err_file2_local:

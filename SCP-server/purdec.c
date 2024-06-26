@@ -182,8 +182,18 @@ int main(int argc, char *argv[]) {
 	/* Derives key from password and salt. */
 	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 10, KEY_SZ, key); 
 	if (err) {
+		/* Delete password from memory. */
+		bzero(passwd, 100);
 		fprintf(stderr, "Error deriving key: %s\n", gcry_strerror(err));
 		goto err_filename;
+	}
+
+	/* Derives HMAC key from password and salt. */
+	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 20, HMAC_KEY_SZ, hmac_key); 
+	bzero(passwd, 100);
+	if (err) {
+		fprintf(stderr, "Error deriving hmac key: %s\n", gcry_strerror(err));
+		goto err_crypt;
 	}
 
 	/* Initiates cipher handle using AES256_CTR. */
@@ -207,13 +217,6 @@ int main(int argc, char *argv[]) {
 		goto err_crypt;
 	}
 
-	/* Derives HMAC key from password and salt. */
-	err = gcry_kdf_derive(passwd, strlen(passwd), GCRY_KDF_PBKDF2, GCRY_MD_SHA512, salt, SALT_SZ, 20, HMAC_KEY_SZ, hmac_key); 
-	if (err) {
-		fprintf(stderr, "Error deriving hmac key: %s\n", gcry_strerror(err));
-		goto err_crypt;
-	}
-
 	/* Initiates MAC handle using HMAC_SHA256. */
 	err = gcry_md_open(&md_hd, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
 	if (err) {
@@ -231,28 +234,10 @@ int main(int argc, char *argv[]) {
 	f_dec = fopen(filename_out, "ab+");
 
 	if (rcv) {
-		/* Remote case. */
-		//int recv_length;
-
-		/* Reads in length of file. */
-		/*if ((read(net_fd, (char *) &recv_length, sizeof(recv_length))) < 0) {
-			perror("Error reading length.\n");
-			goto err_file2;
-		}
-		printf("Receiving %d bytes.\n", recv_length);
-*/
 		/* Begin decryption. */
 		while ((read_bytes = read(net_fd, buffer, MAX_SCAN + HMAC_KEY_SZ)) > 0) {
 
-			/* Zeros out buffer and receives partial file (1024 bytes of encryption and 32 bytes of MAC) from buffer. */
-			/*bzero((void *) buffer, BUFSIZE);
-			if () {
-				perror("Error reading from file.\n");
-				goto err_file2;
-			}*/
 			printf("Received %d bytes.\n", read_bytes);
-			//recv_length -= read_bytes;
-
 			/* Performs HMAC and checks whether it matches.*/
 			gcry_md_write(md_hd, buffer, read_bytes - HMAC_KEY_SZ);
 			char* hmac_enc = gcry_md_read(md_hd, GCRY_MD_SHA256);
@@ -292,7 +277,9 @@ int main(int argc, char *argv[]) {
 			goto err_file2;
 		}
 	}
-	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed. */
+	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed and keys are wiped from memory. */
+	bzero(key, KEY_SZ);
+	bzero(hmac_key, HMAC_KEY_SZ);
 	if (local)
 		fclose(f_src);
 	fclose(f_dec);
@@ -303,8 +290,10 @@ int main(int argc, char *argv[]) {
 	}
 	return 0;
 
-	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed. */
+	/* Makes sure that when exiting, corresponding files, sockets and contexts are freed and keys are wiped from memory. */
 	err_file2:
+		bzero(key, KEY_SZ);
+		bzero(hmac_key, HMAC_KEY_SZ);
 		fclose(f_dec);
 	err_md:
 		gcry_md_close(md_hd);
