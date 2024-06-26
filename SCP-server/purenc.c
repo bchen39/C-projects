@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 		remote.sin_family = AF_INET;
 		char *token;
 
-   	/* get the IP and port */
+   		/* get the IP and port */
 		token = strtok(argv[3], ":");
 		if ((remote.sin_addr.s_addr = inet_addr(token)) == -1) {
 			fprintf(stderr, "Error reading address.\n");

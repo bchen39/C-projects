@@ -29,9 +29,6 @@ void gcry_init() {
         exit(EXIT_FAILURE);
     }
 
-  	/* Uncomment to disable secure memory.  */
-  	//gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
-
   	/* Tell Libgcrypt that initialization has completed. */
   	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 }
