@@ -23,19 +23,22 @@
 #define DEBUG 0
 
 void gcry_init() {
-  /* Disable secure memory.  */
-  gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+	/* Check gcrypt version. */
+	if (!gcry_check_version(GCRYPT_VERSION)) {
+        fprintf(stderr, "libgcrypt version mismatch\n");
+        exit(EXIT_FAILURE);
+    }
 
-  /* ... If required, other initialization goes here.  */
+  	/* Uncomment to disable secure memory.  */
+  	//gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
 
-  /* Tell Libgcrypt that initialization has completed. */
-  gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  	/* Tell Libgcrypt that initialization has completed. */
+  	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 }
 
 int main(int argc, char *argv[]) {
-	// takes input
+	/* length of variables (p = plaintext, h = hmac, s = salt) */
 	uint16_t nread, nwrite, plength, hlength, slength;
-	//  uint16_t total_len, ethertype
 	/* Buffer for reading from file */
 	char buffer[BUFSIZE];
 	/* Buffer for password */
@@ -70,9 +73,9 @@ int main(int argc, char *argv[]) {
 	int filelen;
 	snprintf(filename_out, 100, "%s.pur", filename);
 	if (access(filename_out, F_OK) == 0) {
-    // file exists
-    fprintf(stderr, "Output file already exists.\n");
-    exit(EXIT_FAILURE);
+    	// file exists
+    	fprintf(stderr, "Output file already exists.\n");
+    	exit(EXIT_FAILURE);
 	}
 
 	/* Limits correct argument size. */

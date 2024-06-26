@@ -23,18 +23,22 @@
 #define DEBUG 0
 
 void gcry_init() {
-  /* Disable secure memory.  */
-  gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+	/* Check gcrypt version. */
+	if (!gcry_check_version(GCRYPT_VERSION)) {
+        fprintf(stderr, "libgcrypt version mismatch\n");
+        exit(EXIT_FAILURE);
+    }
 
-  /* ... If required, other initialization goes here.  */
+  	/* Uncomment to disable secure memory.  */
+  	//gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
 
-  /* Tell Libgcrypt that initialization has completed. */
-  gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  	/* Tell Libgcrypt that initialization has completed. */
+  	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 }
 
 int main(int argc, char *argv[]) {
+	/* length of variables (p = plaintext, h = hmac, s = salt) */
 	uint16_t nread, nwrite, plength, hlength, slength;
-	//  uint16_t total_len, ethertype;
 	/* Buffer for reading from purenc */
 	char buffer[BUFSIZE]; 
 	/* Buffer for password */
@@ -119,17 +123,17 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
     
-    /* Sets up receiving server address. */
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons((unsigned short) strtoul(argv[1], NULL, 0));
-    if (DEBUG)
-    	printf("Set %hu as the port...\n", htons(serv_addr.sin_port));
-    if (bind(sock_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0){
-      perror("bind()");
-      goto err_sock;
-    }
+    	/* Sets up receiving server address. */
+    	memset(&serv_addr, 0, sizeof(serv_addr));
+    	serv_addr.sin_family = AF_INET;
+    	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    	serv_addr.sin_port = htons((unsigned short) strtoul(argv[1], NULL, 0));
+    	if (DEBUG)
+    		printf("Set %hu as the port...\n", htons(serv_addr.sin_port));
+    	if (bind(sock_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0){
+			perror("bind()");
+			goto err_sock;
+    	}
     
 		if (listen(sock_fd, 5) < 0){
 			perror("listen()");
